@@ -1,0 +1,13 @@
+[package]
+name = "provider-svc"
+version = "0.1.0"
+edition = "2021"
+
+[lints]
+workspace = true
+
+[dependencies]
+axum = { workspace = true }
+common = { path = "../common" }
+rand = "0.8"
+tokio = { workspace = true }
