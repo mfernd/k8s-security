@@ -1,5 +1,8 @@
 use axum::{extract::State, routing::get, Router};
-use common::word_kind::WordKind;
+use common::{
+    routes::{aggregator, provider},
+    word_kind::WordKind,
+};
 use futures::{stream, StreamExt};
 use tracing::{error, info};
 use workers_config::WorkersConfig;
@@ -13,7 +16,7 @@ struct AppState {
 
 pub fn create_app(workers_config: WorkersConfig) -> Router {
     Router::new()
-        .route("/sentence", get(sentence_handler))
+        .route(aggregator::SENTENCE_ROUTE, get(sentence_handler))
         .with_state(AppState { workers_config })
 }
 
@@ -59,7 +62,7 @@ async fn fetch_word(
         url.insert_str(0, "http://");
     };
 
-    url.push_str("/random_word");
+    url.push_str(provider::RANDOM_WORD_ROUTE);
 
     info!("fetching worker \"{}\" for \"{}\"", url, &word_kind);
     client

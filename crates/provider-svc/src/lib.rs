@@ -1,5 +1,5 @@
 use axum::{extract::State, http::StatusCode, routing::get, Router};
-use common::word_kind::WordKind;
+use common::{routes::provider, word_kind::WordKind};
 use rand::seq::SliceRandom;
 
 pub mod words;
@@ -14,8 +14,8 @@ pub fn create_app(kind: WordKind) -> Router {
     let words = words::get_words_by_kind(&kind);
 
     Router::new()
-        .route("/kind", get(get_kind))
-        .route("/random_word", get(random))
+        .route(provider::KIND_ROUTE, get(get_kind))
+        .route(provider::RANDOM_WORD_ROUTE, get(random))
         .with_state(AppState { kind, words })
 }
 
