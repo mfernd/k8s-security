@@ -1,0 +1,29 @@
+services:
+  aggregator-svc:
+    build:
+      target: aggregator-svc
+    environment:
+      APP_WORKERS_CONFIG: |
+        adjectives = ["http://adjective-provider1:80"]
+        nouns = ["http://noun-provider1:80"]
+        verbs = ["http://verb-provider1:80"]
+    ports:
+      - "127.0.0.1:3000:80"
+
+  adjective-provider1:
+    build:
+      target: provider-svc
+    environment:
+      APP_PROVIDER_KIND: adjective
+
+  noun-provider1:
+    build:
+      target: provider-svc
+    environment:
+      APP_PROVIDER_KIND: noun
+
+  verb-provider1:
+    build:
+      target: provider-svc
+    environment:
+      APP_PROVIDER_KIND: verb
