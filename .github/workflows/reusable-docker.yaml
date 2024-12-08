@@ -1,0 +1,47 @@
+name: Reusable Docker to Build and Push
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        description: 'Docker target to build the docker image (e.g. "aggregator-svc" or "provider-svc")'
+        required: true
+        type: string
+      image:
+        description: "Docker image name"
+        required: true
+        type: string
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ inputs.image }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          target: ${{ inputs.target }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

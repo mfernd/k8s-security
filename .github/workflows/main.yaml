@@ -1,0 +1,47 @@
+name: Workflow on main branch
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TERM_COLOR: always
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Use cached dependencies and artifacts
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check formatting
+        run: cargo fmt --check
+
+      - name: Run lint
+        run: cargo clippy -- -D warnings
+
+  build_and_push_aggregator_img:
+    needs: checks
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/reusable-docker.yaml
+    with:
+      target: aggregator-svc
+      image: ghcr.io/${{ github.repository }}/aggregator
+
+  build_and_push_provider_img:
+    needs: checks
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/reusable-docker.yaml
+    with:
+      target: provider-svc
+      image: ghcr.io/${{ github.repository }}/provider
