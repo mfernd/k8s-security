@@ -1,5 +1,8 @@
-use common::app_service::{AppService, AppServiceError};
-use provider_svc::{create_app, kind::ProviderKind};
+use common::{
+    app_service::{AppService, AppServiceError},
+    word_kind::WordKind,
+};
+use provider_svc::create_app;
 
 #[derive(Debug)]
 pub enum ProviderServiceError {
@@ -24,10 +27,9 @@ async fn main() -> Result<(), ProviderServiceError> {
         .map_err(ProviderServiceError::StartServer)
 }
 
-fn get_provider_kind_env(kind_env_key: &str) -> Result<ProviderKind, ProviderServiceError> {
+fn get_provider_kind_env(kind_env_key: &str) -> Result<WordKind, ProviderServiceError> {
     let provider_type =
         std::env::var(kind_env_key).map_err(ProviderServiceError::MissingProviderType)?;
 
-    ProviderKind::try_from(provider_type.as_str())
-        .map_err(ProviderServiceError::InvalidProviderType)
+    WordKind::try_from(provider_type.as_str()).map_err(ProviderServiceError::InvalidProviderType)
 }

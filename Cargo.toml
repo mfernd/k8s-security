@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/common", "crates/aggregator-svc", "crates/provider-svc"]
+members = ["crates/aggregator-svc", "crates/common", "crates/provider-svc"]
 resolver = "2"
 
 [workspace.lints.rust]
@@ -9,3 +9,5 @@ unsafe_code = "deny"
 axum = { version = "0.7", features = ["json", "macros"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 tracing = { version = "0.1", features = ["attributes"] }
+rand = "0.8"
+reqwest = { version = "0.12", features = ["rustls-tls"] }

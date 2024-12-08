@@ -1,17 +1,17 @@
 use axum::{extract::State, http::StatusCode, routing::get, Router};
-use kind::ProviderKind;
+use common::word_kind::WordKind;
 use rand::seq::SliceRandom;
 
-pub mod kind;
+pub mod words;
 
 #[derive(Clone)]
 struct AppState {
-    kind: ProviderKind,
+    kind: WordKind,
     words: Vec<String>,
 }
 
-pub fn create_app(kind: ProviderKind) -> Router {
-    let words = kind.get_words();
+pub fn create_app(kind: WordKind) -> Router {
+    let words = words::get_words_by_kind(&kind);
 
     Router::new()
         .route("/kind", get(get_kind))
