@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.aggregator.name }}-cm
+  namespace: {{ .Release.Namespace }}
+data:
+  workers_config: |
+    {{- range .Values.providers.list }}
+    {{ .kind }}s = ["http://{{ .name }}-svc:80"]
+    {{- end }}

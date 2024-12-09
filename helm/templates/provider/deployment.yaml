@@ -1,0 +1,45 @@
+{{- range .Values.providers.list }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .name }}-deployment
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ .kind }}
+    release: {{ $.Release.Name }}
+spec:
+  replicas: {{ .replica | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ .kind }}
+      release: {{ $.Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .kind }}
+        release: {{ $.Release.Name }}
+    spec:
+      containers:
+      - name: {{ $.Values.providers.name }}
+        image: "{{ $.Values.providers.image.tag }}:{{ $.Values.providers.image.version }}"
+        imagePullPolicy: Always
+        ports:
+        - name: {{ .port_name }}
+          containerPort: 80
+        env:
+        - name: APP_PROVIDER_KIND
+          value: {{ .kind }}
+        livenessProbe:
+            httpGet:
+              path: /_health
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /_health
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 3
+---
+{{- end }}

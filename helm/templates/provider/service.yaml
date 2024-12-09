@@ -1,0 +1,20 @@
+{{- range .Values.providers.list }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .name }}-svc
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ .kind }}
+    release: {{ $.Release.Name }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .kind }}
+    release: {{ $.Release.Name }}
+  ports:
+    - name: http
+      port: 80
+      targetPort: {{ .port_name }}
+---
+{{- end }}

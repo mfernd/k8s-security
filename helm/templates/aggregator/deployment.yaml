@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.aggregator.name }}-deployment
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: aggregator
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.aggregator.replica | default 1 }}
+  selector:
+    matchLabels:
+      app: aggregator
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: aggregator
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: provider
+        image: "{{ .Values.aggregator.image.tag }}:{{ .Values.aggregator.image.version }}"
+        imagePullPolicy: Always
+        ports:
+        - name: aggr-pod-port
+          containerPort: 80
+        env:
+        - name: APP_WORKERS_CONFIG
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.aggregator.name }}-cm
+              key: workers_config
+        livenessProbe:
+            httpGet:
+              path: /_health
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /_health
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 3

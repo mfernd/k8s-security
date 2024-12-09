@@ -28,3 +28,12 @@ start-docker:
 
 stop-docker:
     docker compose down --remove-orphans
+
+helm_name := "my-k8s-security"
+
+install-helm:
+    helm install {{ helm_name }} helm/ --namespace {{ helm_name }} --create-namespace --wait
+
+uninstall-helm:
+    helm uninstall {{ helm_name }} --namespace {{ helm_name }} --wait
+    kubectl delete ns/{{ helm_name }}

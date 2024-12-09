@@ -1,0 +1,25 @@
+aggregator:
+  name: aggregator
+  replica: 1
+  image:
+    tag: ghcr.io/mfernd/k8s-security/aggregator
+    version: latest
+
+providers:
+  name: provider
+  image:
+    tag: ghcr.io/mfernd/k8s-security/provider
+    version: latest
+  list:
+    - kind: adjective
+      name: adjective-provider
+      replica: 1
+      port_name: adj-pod-port
+    - kind: noun
+      name: noun-provider
+      replica: 1
+      port_name: noun-pod-port
+    - kind: verb
+      name: verb-provider
+      replica: 1
+      port_name: verb-pod-port
