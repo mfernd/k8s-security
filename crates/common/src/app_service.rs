@@ -17,16 +17,13 @@ impl AppService {
     /// Create an [AppService], that later, can be [AppService::run].
     pub fn new(app_router: Router, worker_urls: Option<Vec<String>>) -> Self {
         let router = Router::new()
+            .merge(app_router)
+            .layer(ServiceBuilder::new().layer(TraceLayer::new_for_http()))
             .route(
                 "/_health",
                 get(|| async { health_handler(worker_urls).await }),
             )
-            .merge(app_router)
-            .layer(
-                ServiceBuilder::new()
-                    .layer(TraceLayer::new_for_http())
-                    .layer(CorsLayer::permissive()),
-            );
+            .layer(ServiceBuilder::new().layer(CorsLayer::permissive()));
 
         Self { router }
     }
