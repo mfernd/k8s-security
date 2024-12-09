@@ -3,7 +3,7 @@ use common::{
     routes::{aggregator, provider},
     word_kind::WordKind,
 };
-use futures::{stream, StreamExt};
+use futures::{stream, FutureExt, StreamExt};
 use tracing::{error, info};
 use workers_config::WorkersConfig;
 
@@ -32,14 +32,29 @@ async fn sentence_handler(State(state): State<AppState>) -> String {
     ];
 
     stream::iter(sentence_order)
+        // fetch word
         .map(|kind| fetch_word(&client, &state.workers_config, kind))
-        .fold(String::new(), |acc, x| async move {
-            let word = x.await.unwrap_or(" - ".into());
+        // handle error
+        .map(|response| async move {
+            match response.await {
+                Ok((kind, word)) => (Some(kind), word),
+                Err(_) => (None, " - ".into()),
+            }
+        })
+        // format sentence
+        .fold(String::new(), |acc, response| async move {
+            let (kind, word) = response.await;
             if acc.is_empty() {
                 return word;
             }
-            acc + " " + &word.to_lowercase()
+            let formatted_word = match (kind, word) {
+                (Some(WordKind::Noun), word) => word,
+                (_, word) => word.to_lowercase(),
+            };
+
+            acc + " " + &formatted_word
         })
+        .map(|sentence| sentence + ".")
         .await
 }
 
@@ -54,7 +69,7 @@ async fn fetch_word(
     client: &reqwest::Client,
     workers: &WorkersConfig,
     word_kind: WordKind,
-) -> Result<String, FetchWordError> {
+) -> Result<(WordKind, String), FetchWordError> {
     let mut url = workers
         .get_rand_worker_by_kind(&word_kind)
         .map_err(|_| FetchWordError::CouldNotRetrieveWorkerUrl)?;
@@ -65,7 +80,7 @@ async fn fetch_word(
     url.push_str(provider::RANDOM_WORD_ROUTE);
 
     info!("fetching worker \"{}\" for \"{}\"", url, &word_kind);
-    client
+    let word = client
         .get(url)
         .send()
         .await
@@ -79,5 +94,7 @@ async fn fetch_word(
             // should happen rarely
             error!("could not decode response body, because: {:?}", err);
             FetchWordError::FailedToDecodeResponse
-        })
+        })?;
+
+    Ok((word_kind, word))
 }
