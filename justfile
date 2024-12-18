@@ -31,9 +31,25 @@ stop-docker:
 
 helm_name := "my-k8s-security"
 
-install-helm:
-    helm install {{ helm_name }} helm/ --namespace {{ helm_name }} --create-namespace --wait
+install-helm-chart:
+    helm install {{ helm_name }} charts/mfernd-k8s-security/ --namespace {{ helm_name }} --create-namespace --wait
+    kubectl label namespace {{ helm_name }} istio.io/dataplane-mode=ambient
 
-uninstall-helm:
+uninstall-helm-chart:
     helm uninstall {{ helm_name }} --namespace {{ helm_name }} --wait
     kubectl delete ns/{{ helm_name }}
+
+cluster_name := "mfernd-k8s-security"
+
+k3d-cluster-create:
+    # Start k3d cluster
+    k3d cluster create {{ cluster_name }} -p "127.0.0.1:9080:80@loadbalancer" -p "127.0.0.1:9443:443@loadbalancer" --k3s-arg '--disable=traefik@server:*;agents:*'
+    # Install Gateway API crds
+    kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.1/standard-install.yaml
+    # Check if helmfile cli exists...
+    @command -v helmfile > /dev/null || (echo "helmfile not found :(" && exit 1)
+    # Install Istio on the cluster (in ambient mode)
+    helmfile apply --file charts/helmfile.infra.yaml --wait
+
+k3d-cluster-delete:
+    k3d cluster delete {{ cluster_name }}
