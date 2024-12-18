@@ -1,0 +1,6 @@
+apiVersion: v2
+name: sentences-demo-app
+description: A Helm chart for demo app used in a Kubernetes Security course
+type: application
+version: 0.1.0
+appVersion: "1.16.0"

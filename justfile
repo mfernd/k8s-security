@@ -34,7 +34,7 @@ stop-docker:
 # --- Kubernetes
 
 cluster_name := "mfernd-k8s-security"
-helm_name := "my-k8s-security"
+helm_name := "my-sentences-demo-app"
 
 k3d-cluster-create:
     # Start k3d cluster
@@ -47,6 +47,8 @@ k3d-cluster-init:
     @command -v helmfile > /dev/null || (echo "helmfile not found :(" && exit 1)
     # Install Istio on the cluster (in ambient mode)
     helmfile apply --file charts/helmfile.infra.yaml --wait
+    # For Istio and Kiali dashboard, for demonstration purposes only
+    kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.24/samples/addons/prometheus.yaml
 
 k3d-cluster-delete:
     k3d cluster delete {{ cluster_name }}
@@ -56,3 +58,4 @@ helm-demo-app-install:
 
 helm-demo-app-uninstall:
     helmfile destroy --file charts/helmfile.apps.yaml
+    kubectl delete namespace {{ helm_name }}

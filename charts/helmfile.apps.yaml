@@ -1,7 +1,7 @@
 releases:
-  - name: mfernd-k8s-security
-    namespace: my-k8s-security
-    chart: ./mfernd-k8s-security/
+  - name: sentences-demo-app
+    namespace: my-sentences-demo-app
+    chart: ./sentences-demo-app/
     hooks:
       - events: ["postsync"]
         showlogs: true
