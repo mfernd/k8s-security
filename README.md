@@ -14,6 +14,21 @@ just dev
 
 With [`mprocs`](https://github.com/pvolok/mprocs) to execute services in parallel.
 
+## Kubernetes (k3d)
+
+Prerequisites:
+- kubectl (obviously)
+- [`k3d`](https://github.com/k3d-io/k3d)
+- [`helmfile`](https://github.com/helmfile/helmfile)
+
+```bash
+# create k3d cluster (with Istio)
+just k3d-cluster-create
+
+# install app helm chart
+just install-helm-chart
+```
+
 ## Configuration
 
 ### Common module
