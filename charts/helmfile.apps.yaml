@@ -1,0 +1,9 @@
+releases:
+  - name: mfernd-k8s-security
+    namespace: my-k8s-security
+    chart: ./mfernd-k8s-security/
+    hooks:
+      - events: ["postsync"]
+        showlogs: true
+        command: "kubectl"
+        args: ["label", "namespace", "{{`{{ .Release.Namespace }}`}}", "istio.io/dataplane-mode=ambient"]

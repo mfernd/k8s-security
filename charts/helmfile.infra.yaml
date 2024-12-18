@@ -1,20 +1,20 @@
 repositories:
   - name: istio
     url: https://istio-release.storage.googleapis.com/charts
+  - name: kiali
+    url: https://kiali.org/helm-charts
 
 releases:
   # Istio (in ambient mode)
   - name: istio-base
     namespace: istio-system
     chart: istio/base
-
   - name: istiod
     namespace: istio-system
     chart: istio/istiod
     set:
       - name: profile
         value: ambient
-
   - name: istio-cni
     namespace: istio-system
     chart: istio/cni
@@ -23,7 +23,14 @@ releases:
         value: ambient
       - name: global.platform
         value: k3d
-
   - name: ztunnel
     namespace: istio-system
     chart: istio/ztunnel
+
+  # Mesh visualizer
+  - name: kiali-server
+    namespace: istio-system
+    chart: kiali/kiali-server
+    set:
+      - name: auth.strategy
+        value: anonymous
