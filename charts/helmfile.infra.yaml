@@ -9,15 +9,18 @@ releases:
   - name: istio-base
     namespace: istio-system
     chart: istio/base
+    version: 1.24.2
   - name: istiod
     namespace: istio-system
     chart: istio/istiod
+    version: 1.24.2
     set:
       - name: profile
         value: ambient
   - name: istio-cni
     namespace: istio-system
     chart: istio/cni
+    version: 1.24.2
     set:
       - name: profile
         value: ambient
@@ -26,11 +29,13 @@ releases:
   - name: ztunnel
     namespace: istio-system
     chart: istio/ztunnel
+    version: 1.24.2
 
   # Mesh visualizer
   - name: kiali-server
     namespace: istio-system
     chart: kiali/kiali-server
+    version: 2.2.0
     set:
       - name: auth.strategy
         value: anonymous

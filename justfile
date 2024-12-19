@@ -40,7 +40,7 @@ k3d-cluster-create:
     # Start k3d cluster
     k3d cluster create {{ cluster_name }} -p "127.0.0.1:9080:80@loadbalancer" -p "127.0.0.1:9443:443@loadbalancer" --k3s-arg '--disable=traefik@server:*;agents:*'
     # Install Gateway API crds
-    kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.1/standard-install.yaml
+    kubectl apply -f ./charts/crds_gateway.networking.k8s.io_v1.2.1.yaml
 
 k3d-cluster-init:
     # Check if helmfile cli exists...
@@ -48,7 +48,7 @@ k3d-cluster-init:
     # Install Istio on the cluster (in ambient mode)
     helmfile apply --file charts/helmfile.infra.yaml --wait
     # For Istio and Kiali dashboard, for demonstration purposes only
-    kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.24/samples/addons/prometheus.yaml
+    kubectl apply -f ./charts/istio_addon_prometheus_v1.24.yaml
 
 k3d-cluster-delete:
     k3d cluster delete {{ cluster_name }}
