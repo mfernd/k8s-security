@@ -1,6 +1,7 @@
 aggregator:
   name: aggregator
   replica: 1
+  port_name: aggr-pod-port
   image:
     tag: ghcr.io/mfernd/k8s-security/aggregator
     version: latest

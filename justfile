@@ -36,13 +36,13 @@ stop-docker:
 cluster_name := "mfernd-k8s-security"
 helm_name := "my-sentences-demo-app"
 
-k3d-cluster-create:
-    # Start k3d cluster
-    k3d cluster create {{ cluster_name }} -p "127.0.0.1:9080:80@loadbalancer" -p "127.0.0.1:9443:443@loadbalancer" --k3s-arg '--disable=traefik@server:*;agents:*'
+kube-cluster-create:
+    kind create cluster --name {{ cluster_name }}
+    kubectl label node {{ cluster_name }}-control-plane node.kubernetes.io/exclude-from-external-load-balancers-
     # Install Gateway API crds
     kubectl apply -f ./charts/crds_gateway.networking.k8s.io_v1.2.1.yaml
 
-k3d-cluster-init:
+kube-cluster-init:
     # Check if helmfile cli exists...
     @command -v helmfile > /dev/null || (echo "helmfile not found :(" && exit 1)
     # Install Istio on the cluster (in ambient mode)
@@ -50,11 +50,11 @@ k3d-cluster-init:
     # For Istio and Kiali dashboard, for demonstration purposes only
     kubectl apply -f ./charts/istio_addon_prometheus_v1.24.yaml
 
-k3d-cluster-delete:
-    k3d cluster delete {{ cluster_name }}
+kube-cluster-delete:
+    kind delete cluster --name {{ cluster_name }}
 
 helm-demo-app-install:
-    helmfile apply --file charts/helmfile.apps.yaml --wait
+    helmfile apply --file charts/helmfile.apps.yaml
 
 helm-demo-app-uninstall:
     helmfile destroy --file charts/helmfile.apps.yaml

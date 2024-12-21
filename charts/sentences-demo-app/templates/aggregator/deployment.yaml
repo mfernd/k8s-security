@@ -23,9 +23,11 @@ spec:
         image: "{{ .Values.aggregator.image.tag }}:{{ .Values.aggregator.image.version }}"
         imagePullPolicy: Always
         ports:
-        - name: aggr-pod-port
-          containerPort: 80
+        - name: {{ .Values.aggregator.port_name }}
+          containerPort: 8080
         env:
+        - name: APP_PORT
+          value: "8080"
         - name: APP_WORKERS_CONFIG
           valueFrom:
             configMapKeyRef:
@@ -34,12 +36,12 @@ spec:
         livenessProbe:
             httpGet:
               path: /_health
-              port: 80
+              port: 8080
             initialDelaySeconds: 3
             periodSeconds: 3
         readinessProbe:
           httpGet:
             path: /_health
-            port: 80
+            port: 8080
           initialDelaySeconds: 3
           periodSeconds: 3

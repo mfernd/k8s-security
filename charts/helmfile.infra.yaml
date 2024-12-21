@@ -24,8 +24,6 @@ releases:
     set:
       - name: profile
         value: ambient
-      - name: global.platform
-        value: k3d
   - name: ztunnel
     namespace: istio-system
     chart: istio/ztunnel

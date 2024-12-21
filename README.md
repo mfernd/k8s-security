@@ -1,7 +1,7 @@
 # k8s-security
 
-- [Kubernetes (k3d)](#kubernetes-k3d)
-  - [Create k3d cluster with Istio](#create-k3d-cluster-with-istio)
+- [Kubernetes (kind)](#kubernetes-kind)
+  - [Create cluster with Istio](#create-cluster-with-istio)
   - [Deploy demo app (sentences generator)](#deploy-demo-app-sentences-generator)
 - [How to dev - demo app](#how-to-dev---demo-app)
   - [Docker compose run](#docker-compose-run)
@@ -11,26 +11,30 @@
     - [Aggregator](#aggregator)
     - [Provider](#provider)
 
-## Kubernetes (k3d)
+## Kubernetes (kind)
 
 Prerequisites:
 - `kubectl` (obviously)
-- [`k3d`](https://github.com/k3d-io/k3d)
+- [`kind`](https://github.com/kubernetes-sigs/kind)
+- [`cloud-provider-kind`](https://github.com/kubernetes-sigs/cloud-provider-kind)
 - [`helmfile`](https://github.com/helmfile/helmfile)
 
-### Create k3d cluster with Istio
+### Create cluster with Istio
 
-Create k3d cluster (loadbalancer listening on ports 9080 and 9443, and without traefik):
+Create `kind` cluster:
 
 ```bash
-just k3d-cluster-create
+just kube-cluster-create
 ```
 
 Install Istio (ambient mode), with kyverno, falco, (and more):
 
 ```bash
-just k3d-cluster-init
+just kube-cluster-init
 ```
+
+> [!NOTE]
+> You will need to start a new shell where you will run `cloud-provider-kind` so that the LoadBalancer, the one created by the Gateway, gets an external IP.
 
 ### Deploy demo app (sentences generator)
 
@@ -38,7 +42,18 @@ just k3d-cluster-init
 just helm-demo-app-install
 ```
 
-Go to [localhost:9443/](http://localhost:9443/) to see the app.
+To get the external IP of our service:
+
+```bash
+export INGRESS_HOST=$(kubectl get -n my-sentences-demo-app gateway sentences-demo-app-gw -o jsonpath='{.status.addresses[0].value}')
+echo $INGRESS_HOST
+```
+
+And then you try the app with:
+
+```bash
+curl http://$INGRESS_HOST/
+```
 
 ## How to dev - demo app
 

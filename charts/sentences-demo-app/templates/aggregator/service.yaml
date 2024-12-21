@@ -14,4 +14,4 @@ spec:
   ports:
     - name: http
       port: 80
-      targetPort: aggr-pod-port
+      targetPort: {{ .Values.aggregator.port_name }}

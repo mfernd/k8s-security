@@ -25,20 +25,22 @@ spec:
         imagePullPolicy: Always
         ports:
         - name: {{ .port_name }}
-          containerPort: 80
+          containerPort: 8080
         env:
+        - name: APP_PORT
+          value: "8080"
         - name: APP_PROVIDER_KIND
           value: {{ .kind }}
         livenessProbe:
             httpGet:
               path: /_health
-              port: 80
+              port: 8080
             initialDelaySeconds: 3
             periodSeconds: 3
         readinessProbe:
           httpGet:
             path: /_health
-            port: 80
+            port: 8080
           initialDelaySeconds: 3
           periodSeconds: 3
 ---
