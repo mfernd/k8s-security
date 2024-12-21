@@ -31,17 +31,22 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
+      attestations: write
     uses: ./.github/workflows/reusable-docker.yaml
     with:
       target: aggregator-svc
       image: ghcr.io/${{ github.repository }}/aggregator
+    secrets: inherit
 
   build_and_push_provider_img:
     needs: checks
     permissions:
       contents: read
       packages: write
+      id-token: write
     uses: ./.github/workflows/reusable-docker.yaml
     with:
       target: provider-svc
       image: ghcr.io/${{ github.repository }}/provider
+    secrets: inherit
