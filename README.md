@@ -3,6 +3,7 @@
 - [Kubernetes (kind)](#kubernetes-kind)
   - [Create cluster with Istio](#create-cluster-with-istio)
   - [Deploy demo app (sentences generator)](#deploy-demo-app-sentences-generator)
+  - [Test the app](#test-the-app)
 - [How to dev - demo app](#how-to-dev---demo-app)
   - [Docker compose run](#docker-compose-run)
   - [Local run](#local-run)
@@ -42,6 +43,8 @@ just kube-cluster-init
 just helm-demo-app-install
 ```
 
+### Test the app
+
 To get the external IP of our service:
 
 ```bash
@@ -54,6 +57,20 @@ And then you try the app with:
 ```bash
 curl http://$INGRESS_HOST/
 ```
+
+You can check in Kiali, that the mTLS is enabled in our namespace:
+
+```bash
+kubectl port-forward -n istio-system svc/kiali 20001:20001
+```
+
+Go to [http://localhost:20001](http://localhost:20001), and see the app in Kiali:
+
+![App In Kiali homepage](./docs/app_in_kiali.png)
+
+And the traffic graph (you need to send some requests to the app to see it):
+
+![App In Kiali traffic graph](./docs/traffic_graph_kiali.png)
 
 ## How to dev - demo app
 
