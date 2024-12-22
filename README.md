@@ -22,6 +22,7 @@
 
 Prerequisites:
 - `kubectl` (obviously)
+- [`just`](https://github.com/casey/just): alternative to `make` (`cargo install just`)
 - [`kind`](https://github.com/kubernetes-sigs/kind)
 - [`cloud-provider-kind`](https://github.com/kubernetes-sigs/cloud-provider-kind)
 - [`helmfile`](https://github.com/helmfile/helmfile)
