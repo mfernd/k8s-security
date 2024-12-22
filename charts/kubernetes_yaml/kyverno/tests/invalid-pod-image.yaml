@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: invalid-pod
+  namespace: app
+  labels:
+    name: invalid-pod
+spec:
+  containers:
+    - name: invalid-pod
+      # image too old to have a signature (:latest has it)
+      image: "ghcr.io/mfernd/k8s-security/aggregator@sha256:ecde94f8f054dd118dc16b646119335a7ebb3940761c580fdf21c0692cb6254d"
+      ports:
+        - containerPort: 3000
+      env:
+        - name: APP_PORT
+          value: "8080"

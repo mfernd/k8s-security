@@ -61,3 +61,20 @@ helm-demo-app-install:
 helm-demo-app-uninstall:
     helmfile destroy --file charts/helmfile.apps.yaml
     kubectl delete namespace {{ helm_name }}
+
+kyv_policy_folder := "./charts/kubernetes_yaml/kyverno"
+kyv_tests_folder := "./charts/kubernetes_yaml/kyverno/tests"
+
+kyverno-valid-tests:
+    kyverno apply {{ kyv_policy_folder }}/check-images.cpol.yaml --resource {{ kyv_tests_folder }}/valid-pod.yaml
+    kyverno apply {{ kyv_policy_folder }}/require-requests-limits.cpol.yaml --resource {{ kyv_tests_folder }}/valid-pod.yaml
+    kyverno apply {{ kyv_policy_folder }}/restrict-nodeport.cpol.yaml --resource {{ kyv_tests_folder }}/valid-svc-clusterip.yaml
+
+kyverno-invalid-tests:
+    ! kyverno apply {{ kyv_policy_folder }}/check-images.cpol.yaml --resource {{ kyv_tests_folder }}/invalid-pod-image.yaml
+    ! kyverno apply {{ kyv_policy_folder }}/require-requests-limits.cpol.yaml --resource {{ kyv_tests_folder }}/invalid-pod-requests-limits.yaml
+    ! kyverno apply {{ kyv_policy_folder }}/restrict-nodeport.cpol.yaml --resource {{ kyv_tests_folder }}/invalid-svc-nodeport.yaml
+
+kyverno-mutate-tests:
+    kyverno apply {{ kyv_policy_folder }}/add-default-securitycontext.cpol.yaml --resource {{ kyv_tests_folder }}/mutate-pod-security-context.yaml
+    kyverno apply {{ kyv_policy_folder }}/add-istio-mesh-ns.cpol.yaml --resource {{ kyv_tests_folder }}/mutate-ns-istio-mesh.yaml

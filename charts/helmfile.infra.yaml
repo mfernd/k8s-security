@@ -5,6 +5,8 @@ repositories:
     url: https://kiali.org/helm-charts
   - name: kyverno
     url: https://kyverno.github.io/kyverno/
+  - name: policy-reporter
+    url: https://kyverno.github.io/policy-reporter
 
 releases:
   # Istio (in ambient mode)
@@ -45,3 +47,12 @@ releases:
     namespace: kyverno
     chart: kyverno/kyverno
     version: 3.3.4
+  - name: policy-reporter
+    namespace: kyverno
+    chart: policy-reporter/policy-reporter
+    version: 2.24.2
+    set:
+      - name: ui.enabled
+        value: true
+      - name: plugin.kyverno.enabled
+        value: true
