@@ -7,6 +7,9 @@
   - [Test Kyverno policies](#test-kyverno-policies)
     - [Admission policies](#admission-policies)
     - [Mutation policies](#mutation-policies)
+  - [Test Falco](#test-falco)
+    - [Trigger a rule](#trigger-a-rule)
+    - [Access Falcosidekick UI](#access-falcosidekick-ui)
 - [How to dev - demo app](#how-to-dev---demo-app)
   - [Docker compose run](#docker-compose-run)
   - [Local run](#local-run)
@@ -22,6 +25,7 @@ Prerequisites:
 - [`kind`](https://github.com/kubernetes-sigs/kind)
 - [`cloud-provider-kind`](https://github.com/kubernetes-sigs/cloud-provider-kind)
 - [`helmfile`](https://github.com/helmfile/helmfile)
+- [`kyverno` CLI](https://kyverno.io/docs/kyverno-cli/)
 
 ### Create cluster with Istio
 
@@ -31,7 +35,7 @@ Create `kind` cluster:
 just kube-cluster-create
 ```
 
-Install Istio (ambient mode), with kyverno, falco:
+Install Istio (ambient mode) with Kyverno and Falco:
 
 ```bash
 just kube-cluster-init
@@ -187,6 +191,81 @@ metadata:
 
 pass: 1, fail: 0, warn: 0, error: 0, skip: 0
 ```
+
+</details>
+
+### Test Falco
+
+#### Trigger a rule
+
+We will try to trigger the rule `Read sensitive file untrusted`:
+
+```bash
+just falco-trigger-rule
+```
+
+<details>
+  <summary>Expected result:</summary>
+
+```json
+{
+  "hostname":"mfernd-k8s-security-control-plane",
+  "output":"17:55:52.489810605: Warning Sensitive file opened for reading by non-trusted program (file=/etc/shadow gparent=<NA> ggparent=<NA> gggparent=<NA> evt_type=openat user=root user_uid=0 user_loginuid=-1 process=cat proc_exepath=/usr/bin/cat parent=containerd-shim command=cat /etc/shadow terminal=34816 container_id=edabb60361fc container_image=docker.io/library/nginx container_image_tag=1.27 container_name=bayrou k8s_ns=trigger-falco-rule k8s_pod_name=bayrou)",
+  "output_fields":{
+    "container.id":"edabb60361fc",
+    "container.image.repository":"docker.io/library/nginx",
+    "container.image.tag":"1.27",
+    "container.name":"bayrou",
+    "evt.time":1734890152489810605,
+    "evt.type":"openat",
+    "fd.name":"/etc/shadow",
+    "k8s.ns.name":"trigger-falco-rule",
+    "k8s.pod.name":"bayrou",
+    "proc.aname[2]":"<NA>",
+    "proc.aname[3]":null,
+    "proc.aname[4]":null,
+    "proc.cmdline":"cat /etc/shadow",
+    "proc.exepath":"/usr/bin/cat",
+    "proc.name":"cat",
+    "proc.pname":"containerd-shim",
+    "proc.tty":34816,
+    "user.loginuid":-1,
+    "user.name":"root",
+    "user.uid":0
+  },
+  "priority":"Warning",
+  "rule":"Read sensitive file untrusted",
+  "source":"syscall",
+  "tags":[
+    "T1555",
+    "container",
+    "filesystem",
+    "host",
+    "maturity_stable",
+    "mitre_credential_access"
+  ],
+  "time":"2024-12-22T17:55:52.489810605Z"
+}
+```
+
+</details>
+<br>
+
+> [!TIP]
+> You can see the rule in the default [`falco_rules.yaml`](https://github.com/falcosecurity/rules/blob/283a62f464bbd9b35cb2fb3a7368720151b2aafc/rules/falco_rules.yaml#L398C9-L398C38).
+
+#### Access Falcosidekick UI
+
+```bash
+kubectl port-forward -n falco svc/falco-falcosidekick-ui 2802:2802
+```
+
+Go to [http://localhost:2802/](http://localhost:2802/events/?since=24h&rule=Read%20sensitive%20file%20untrusted&filter=) (credentials are `admin`/`admin`).
+
+<details>
+  <summary>And you can see the triggered rule:</summary>
+
+![Events in Falcosidekick UI](./docs/event_falcosidekick_ui.png)
 
 </details>
 

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  # not beginning by "my*" or "app*, to prevent policy "securityContext"
+  name: trigger-falco-rule
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bayrou
+  namespace: trigger-falco-rule
+  labels:
+    name: bayrou
+spec:
+  containers:
+    - name: bayrou
+      image: nginx:1.27
+      ports:
+        - containerPort: 8080

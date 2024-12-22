@@ -7,6 +7,8 @@ repositories:
     url: https://kyverno.github.io/kyverno/
   - name: policy-reporter
     url: https://kyverno.github.io/policy-reporter
+  - name: falcosecurity
+    url: https://falcosecurity.github.io/charts
 
 releases:
   # Istio (in ambient mode)
@@ -55,4 +57,21 @@ releases:
       - name: ui.enabled
         value: true
       - name: plugin.kyverno.enabled
+        value: true
+
+  # Falco
+  - name: falco
+    namespace: falco
+    chart: falcosecurity/falco
+    version: 4.17.0
+    set:
+      # Enabling real time logs
+      # https://artifacthub.io/packages/helm/falcosecurity/falco#enabling-real-time-logs
+      - name: tty
+        value: true
+      - name: driver.kind
+        value: modern_ebpf
+      - name: falcosidekick.enabled
+        value: true
+      - name: falcosidekick.webui.enabled
         value: true

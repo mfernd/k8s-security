@@ -46,7 +46,7 @@ kube-cluster-init:
     # Check if helmfile cli exists...
     @command -v helmfile > /dev/null || (echo "helmfile not found :(" && exit 1)
     # Install Istio on the cluster (in ambient mode)
-    helmfile apply --file charts/helmfile.infra.yaml --wait
+    helmfile apply --file ./charts/helmfile.infra.yaml --wait
     # For Istio and Kiali dashboard, for demonstration purposes only
     kubectl apply -f ./charts/kubernetes_yaml/istio_addon_prometheus_v1.24.yaml
     # Add Kyverno policies
@@ -56,10 +56,10 @@ kube-cluster-delete:
     kind delete cluster --name {{ cluster_name }}
 
 helm-demo-app-install:
-    helmfile apply --file charts/helmfile.apps.yaml
+    helmfile apply --file ./charts/helmfile.apps.yaml
 
 helm-demo-app-uninstall:
-    helmfile destroy --file charts/helmfile.apps.yaml
+    helmfile destroy --file ./charts/helmfile.apps.yaml
     kubectl delete namespace {{ helm_name }}
 
 kyv_policy_folder := "./charts/kubernetes_yaml/kyverno"
@@ -78,3 +78,16 @@ kyverno-invalid-tests:
 kyverno-mutate-tests:
     kyverno apply {{ kyv_policy_folder }}/add-default-securitycontext.cpol.yaml --resource {{ kyv_tests_folder }}/mutate-pod-security-context.yaml
     kyverno apply {{ kyv_policy_folder }}/add-istio-mesh-ns.cpol.yaml --resource {{ kyv_tests_folder }}/mutate-ns-istio-mesh.yaml
+
+falco_folder := "./charts/kubernetes_yaml/falco"
+
+falco-trigger-rule:
+    # creating resources that escapes the ClusterPolicies of Kyverno...
+    @kubectl apply -f {{ falco_folder }}/trigger-rule.yaml
+    @kubectl wait -n trigger-falco-rule pod/bayrou --for=condition=Ready
+    # trigger rule by reading sensitive file
+    kubectl exec -n trigger-falco-rule -it pod/bayrou -- cat /etc/shadow
+    # reading latest Falco warnings
+    kubectl logs -l app.kubernetes.io/name=falco -n falco -c falco | grep Warning
+    # removing created resources for triggering a rule...
+    @kubectl delete -f {{ falco_folder }}/trigger-rule.yaml
