@@ -31,6 +31,15 @@ start-docker:
 stop-docker:
     docker compose down --remove-orphans
 
+load-http ip="localhost" port="3000":
+    # check if vegeta exists...
+    @command -v vegeta > /dev/null || (echo "vegeta not found :(" && exit 1)
+    echo "GET http://{{ ip }}:{{ port }}/" | vegeta attack -name=100qps -rate=100 -duration=10s > results.bin
+    # @vegeta report -type=json results.bin > metrics.json
+    @cat results.bin | vegeta plot > plot.html
+    @cat results.bin | vegeta report -type="hist[0,1ms,2ms,3ms,4ms,5ms,6ms,7ms,8ms]"
+    @open plot.html
+
 # --- Kubernetes
 
 cluster_name := "mfernd-k8s-security"
