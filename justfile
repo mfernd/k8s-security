@@ -40,7 +40,7 @@ kube-cluster-create:
     kind create cluster --name {{ cluster_name }}
     kubectl label node {{ cluster_name }}-control-plane node.kubernetes.io/exclude-from-external-load-balancers-
     # Install Gateway API crds
-    kubectl apply -f ./charts/crds_gateway.networking.k8s.io_v1.2.1.yaml
+    kubectl apply -f ./charts/kubernetes_yaml/crds_gateway.networking.k8s.io_v1.2.1.yaml
 
 kube-cluster-init:
     # Check if helmfile cli exists...
@@ -48,7 +48,9 @@ kube-cluster-init:
     # Install Istio on the cluster (in ambient mode)
     helmfile apply --file charts/helmfile.infra.yaml --wait
     # For Istio and Kiali dashboard, for demonstration purposes only
-    kubectl apply -f ./charts/istio_addon_prometheus_v1.24.yaml
+    kubectl apply -f ./charts/kubernetes_yaml/istio_addon_prometheus_v1.24.yaml
+    # Add Kyverno policies
+    kubectl apply -f ./charts/kubernetes_yaml/kyverno/
 
 kube-cluster-delete:
     kind delete cluster --name {{ cluster_name }}

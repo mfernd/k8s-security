@@ -3,6 +3,8 @@ repositories:
     url: https://istio-release.storage.googleapis.com/charts
   - name: kiali
     url: https://kiali.org/helm-charts
+  - name: kyverno
+    url: https://kyverno.github.io/kyverno/
 
 releases:
   # Istio (in ambient mode)
@@ -37,3 +39,9 @@ releases:
     set:
       - name: auth.strategy
         value: anonymous
+
+  # Kyverno
+  - name: kyverno
+    namespace: kyverno
+    chart: kyverno/kyverno
+    version: 3.3.4

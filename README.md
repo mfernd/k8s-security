@@ -28,7 +28,7 @@ Create `kind` cluster:
 just kube-cluster-create
 ```
 
-Install Istio (ambient mode), with kyverno, falco, (and more):
+Install Istio (ambient mode), with kyverno, falco:
 
 ```bash
 just kube-cluster-init
